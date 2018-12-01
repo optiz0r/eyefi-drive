@@ -4,40 +4,43 @@
 # you can leave hostname empty for localhost
 # don't change the port, it will break everything
 
-host_name:
-host_port:59278
+host_name:${EYEFI_HOSTNAME}
+host_port:${EYEFI_PORT:-59278}
 
 # To use this script you need to have your Eye-Fi upload key.
 # You can find it after configuring the card,
 # which you can currently on do on windows or mac
-mac_0:000000000001
-upload_key_0:11111111111111111111111111111111
+mac_0:${MAC_ADDRESS:-000000000001}
+upload_key_0:${UPLOAD_KEY:-11111111111111111111111111111111}
 
 # Flickr API key & secret
-flickr_enable:1
-flickr_key:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-flickr_secret:bbbbbbbbbbbbbbbb
-flickr_concurrency:2
+flickr_enable:${FLICKR_ENABLE:-0}
+flickr_key:${FLICKR_KEY:-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}
+flickr_secret:${FLICKR_SECRET:-bbbbbbbbbbbbbbbb}
+flickr_concurrency:${FLICKR_CONCURENCY:-2}
 # 1 = yes, 0 = no
-flickr_public:0
-flickr_friends:0
-flickr_family:1
+flickr_public:${FLICKR_PUBLIC:-0}
+flickr_friends:${FLICKR_FRIENDS:-0}
+flickr_family:${FLICKR_FAMILY:-1}
 
 # S3 API key & secret - unimplemented
-s3_enable:0
-s3_path:
-s3_access_id:
-s3_secret_key:
+s3_enable:${S3_ENABLE:-0}
+s3_path:${S3_PATH}
+s3_access_id:${S3_ACCESS_ID}
+s3_secret_key:${S3_SECRET_KEY}
 
 # Create XMP file with geolocation information based on access points
 # detected by Eye-Fi card for any uploaded JPEG or RAW file
-geotag_enable:1
+geotag_enable:${GEOTAG_ENABLE:-1}
 
 # Use acces points detected within this period of time
 # before or after photo was taken, in seconds
-geotag_lag:3600
+geotag_lag:${GEOTAG_LAG:-3600}
 
 # Use acquired geolocation data with accuracy over this value, in meters
-geotag_accuracy:140000
+geotag_accuracy:${GEOTAG_ACCURACY:-140000}
 
-upload_dir:/tmp/eyefiserver
+upload_dir:${UPLOAD_DIR:-/tmp/eyefiserver}
+
+# OCR and upload results to Google Drive
+complete_execute=/ocr.sh

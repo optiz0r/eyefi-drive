@@ -36,6 +36,7 @@ import traceback
 import errno
 import tempfile
 import multiprocessing
+import subprocess
 
 import hashlib
 import binascii
@@ -148,12 +149,13 @@ class EyeFiServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
 
     def stop_server(self, signum, frame):
         try:
-            for q in self.worker_queues:
-                q.put(None)
+            if hasattr(self, 'worker_queues'):
+                for q in self.worker_queues:
+                    q.put(None)
             eyeFiLogger.info("Eye-Fi server stopped ")
             self.stop()
         except Exception as e:
-            eyeFiLogger.error("Error stopping server", str(e))
+            eyeFiLogger.error("Error stopping server %s", str(e))
         sys.exit(0)
 
     def server_bind(self):
@@ -520,6 +522,13 @@ def EyeFiRequestHandlerFactory(config, flickr):
 
             eyeFiLogger.debug("Deleting TAR file " + imageTarPath)
             os.remove(imageTarPath)
+
+            # Run a command on the file if specified
+            execute_cmd = self.server.config.get('EyeFiServer', 'complete_execute', '')
+            if execute_cmd:
+                eyeFiLogger.debug('Executing command "%s %s"',
+                                  execute_cmd, imagePath)
+                subprocess.Popen([execute_cmd, imagePath])
 
             # Create the XML document to send back
             doc = xml.dom.minidom.Document()
