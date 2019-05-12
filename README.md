@@ -10,7 +10,7 @@ EyeFi card.
 
 You will need your EyeFi card's MAC address and upload key to use this. One way of
 finding them is described here:
-[http://1wayofdoingit.blogspot.com/2017/12/how-to-get-your-eyefi-upload-key-and.html]
+http://1wayofdoingit.blogspot.com/2017/12/how-to-get-your-eyefi-upload-key-and.html
 
 ## Usage
 
@@ -73,8 +73,8 @@ finding them is described here:
 ## References
 
 This project is derieved from multiple sources including:
-  - (sbm44/eyefi-docker)[https://github.com/sbma44/eyefi-docker]
-  - (dgrant/eyefiserver2)[https://github.com/dgrant/eyefiserver2]
-  - (eyefiserver Ubuntu package)[https://launchpad.net/ubuntu/cosmic/+package/eyefiserver]
-  - (Going Paperless)[https://blog.benroberts.net/2016/01/going-paperless/]
+  - [sbm44/eyefi-docker](https://github.com/sbma44/eyefi-docker)
+  - [dgrant/eyefiserver2](https://github.com/dgrant/eyefiserver2)
+  - [eyefiserver Ubuntu package](https://launchpad.net/ubuntu/cosmic/+package/eyefiserver)
+  - [Going Paperless](https://blog.benroberts.net/2016/01/going-paperless/)
 
