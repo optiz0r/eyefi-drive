@@ -528,7 +528,7 @@ def EyeFiRequestHandlerFactory(config, flickr):
             if execute_cmd:
                 eyeFiLogger.debug('Executing command "%s %s"',
                                   execute_cmd, imagePath)
-                subprocess.Popen([execute_cmd, imagePath])
+                subprocess.call([execute_cmd, imagePath])
 
             # Create the XML document to send back
             doc = xml.dom.minidom.Document()
