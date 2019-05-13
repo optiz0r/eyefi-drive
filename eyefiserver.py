@@ -191,15 +191,16 @@ def EyeFiRequestHandlerFactory(config, flickr):
         def __init__(self, *args, **kwargs):
             self.flickr = flickr
             self.config = config
+            self.execute_cmd = self.config.get('EyeFiServer', 'complete_execute', None)
 
             # set up uploader worker processes
-            if self.flickr is not None:
+            if self.flickr is not None or self.execute_cmd is not None:
                 self.workers = []
                 self.worker_queues = []
                 for i in range(self.config.getint('EyeFiServer', 'flickr_concurrency')):
                     q = multiprocessing.Queue()
                     self.worker_queues.append(q)
-                    self.workers.append(multiprocessing.Process(target=self.flickr_upload, args=(q,)))
+                    self.workers.append(multiprocessing.Process(target=self.image_upload, args=(q,)))
                     self.workers[-1].start()
 
             BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
@@ -215,30 +216,38 @@ def EyeFiRequestHandlerFactory(config, flickr):
                     shortest_q_i = i
             self.worker_queues[shortest_q_i].put(target)
 
-        def flickr_upload(self, q):
+        def image_upload(self, q):
             while True:
                 target = q.get(True)
                 if target is None:
                     break
 
-                success = True
-                try:
-                    self.flickr.upload(
-                        photo_file=target.get('path'),
-                        title=target.get('title', datetime.now().isoformat()),
-                        is_public=self.flickr.is_public,
-                        is_friend=self.flickr.is_friend,
-                        is_family=self.flickr.is_family
-                    )
-                except:
-                    success = False
+                photo_file = target.get('path')
 
-                if not success:
-                    target['attempts'] = target.get('attempts', 0) + 1
-                    if target['attempts'] < 5:
-                        q.put(target)
-                else:
-                    os.unlink(target.get('path'))
+                if self.execute_cmd:
+                    eyeFiLogger.debug('Executing command "%s %s"',
+                                      execute_cmd, photo_file)
+                    subprocess.call([execute_cmd, photo_file])
+
+                if self.flickr:
+                    success = True
+                    try:
+                        self.flickr.upload(
+                            photo_file=photo_file,
+                            title=target.get('title', datetime.now().isoformat()),
+                            is_public=self.flickr.is_public,
+                            is_friend=self.flickr.is_friend,
+                            is_family=self.flickr.is_family
+                        )
+                    except:
+                        success = False
+
+                    if not success:
+                        target['attempts'] = target.get('attempts', 0) + 1
+                        if target['attempts'] < 5:
+                            q.put(target)
+                    else:
+                        os.unlink(target.get('path'))
 
         def do_QUIT (self):
             eyeFiLogger.debug("Got StopServer request .. stopping server")
@@ -522,13 +531,6 @@ def EyeFiRequestHandlerFactory(config, flickr):
 
             eyeFiLogger.debug("Deleting TAR file " + imageTarPath)
             os.remove(imageTarPath)
-
-            # Run a command on the file if specified
-            execute_cmd = self.server.config.get('EyeFiServer', 'complete_execute', '')
-            if execute_cmd:
-                eyeFiLogger.debug('Executing command "%s %s"',
-                                  execute_cmd, imagePath)
-                subprocess.call([execute_cmd, imagePath])
 
             # Create the XML document to send back
             doc = xml.dom.minidom.Document()
