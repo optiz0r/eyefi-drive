@@ -1,0 +1,39 @@
+name: Docker Image CI
+
+on:
+  push:
+    tags:
+      - v*
+
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: eyefi-drive
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME:latest
+
+    - name: Log into registry
+      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin
+  
+    - name: Push image
+      run: |
+          IMAGE_ID=$(echo ${{ github.repository }} | sed -e 's#/.*##')/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME:latest $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
