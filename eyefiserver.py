@@ -504,7 +504,7 @@ def EyeFiRequestHandlerFactory(config, flickr):
                 os.utime(imagePath, (member.mtime + timeoffset, member.mtime + timeoffset))
 
                 # if flickr is enabled, add image to queue
-                if self.flickr is not None:
+                if self.flickr is not None or self.execute_cmd is not None:
                     eyeFiLogger.debug("queueing %s for upload" % imagePath)
                     self.queue_upload({"title": member.name, "path": imagePath})
 
