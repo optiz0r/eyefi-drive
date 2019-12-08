@@ -226,8 +226,8 @@ def EyeFiRequestHandlerFactory(config, flickr):
 
                 if self.execute_cmd:
                     eyeFiLogger.debug('Executing command "%s %s"',
-                                      execute_cmd, photo_file)
-                    subprocess.call([execute_cmd, photo_file])
+                                      self.execute_cmd, photo_file)
+                    subprocess.call([self.execute_cmd, photo_file])
 
                 if self.flickr:
                     success = True
