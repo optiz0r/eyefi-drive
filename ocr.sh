@@ -27,9 +27,9 @@ OCR_PDF=${PDF%.pdf}_ocr.pdf
 mkdir -p "${PDF_PATH}" "${WORK_PATH}" /gdrive
 
 # Ignore case while checking file type
-setopt -s nocasematch
+shopt -s nocasematch
 
-if [[ "${IMAGE}" == "*.jpg" ]] || [[ "${IMAGE}" == "*.jpeg" ]] ; then
+if [[ "${IMAGE}" == *.jpg ]] || [[ "${IMAGE}" == *.jpeg ]] ; then
     # Scanner malforms the JPG files
     /usr/bin/mogrify -write "${IMAGE_PATH}/${IMAGE}" -set comment 'Extraneous bytes removed' "${UNPROCESSED_PATH}/${IMAGE}" 2>/dev/null
     
@@ -38,7 +38,7 @@ if [[ "${IMAGE}" == "*.jpg" ]] || [[ "${IMAGE}" == "*.jpeg" ]] ; then
     
     # Convert to PDF
     /usr/bin/convert "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
-elif [[ "${IMAGE}" == "*.pdf" ]] ; then
+elif [[ "${IMAGE}" == *.pdf ]] ; then
     # Already a PDF so just copy it to the working path
     cp "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
 fi
