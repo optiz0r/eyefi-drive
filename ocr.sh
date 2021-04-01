@@ -38,9 +38,10 @@ if [[ "${IMAGE}" == *.jpg ]] || [[ "${IMAGE}" == *.jpeg ]] ; then
     
     # Convert to PDF
     /usr/bin/convert "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
+
 elif [[ "${IMAGE}" == *.pdf ]] ; then
     # Already a PDF so just copy it to the working path
-    cp "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
+    cp "${UNPROCESSED_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
 fi
  
 # OCR it
