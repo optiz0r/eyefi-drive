@@ -2,6 +2,8 @@
 
 set -x
 
+SHELLNOCASEMATCH=$(shopt -p nocasematch; true)
+
 if [ -z "${ENABLE_OCR}" ]; then
     exit 0
 fi
@@ -23,20 +25,27 @@ OCR_PDF=${PDF%.pdf}_ocr.pdf
  
 # Create the output dirs if not already
 mkdir -p "${PDF_PATH}" "${WORK_PATH}" /gdrive
- 
-# Scanner malforms the JPG files
-/usr/bin/mogrify -write "${IMAGE_PATH}/${IMAGE}" -set comment 'Extraneous bytes removed' "${UNPROCESSED_PATH}/${IMAGE}" 2>/dev/null
- 
-# Update the exif timestamp to today's date, since the scanner isn't accurate
-jhead -ts"${EXIFDATE}" "${IMAGE_PATH}/${IMAGE}"
- 
-# Convert to PDF
-/usr/bin/convert "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
+
+# Ignore case while checking file type
+setopt -s nocasematch
+
+if [[ "${IMAGE}" == "*.jpg" ]] || [[ "${IMAGE}" == "*.jpeg" ]] ; then
+    # Scanner malforms the JPG files
+    /usr/bin/mogrify -write "${IMAGE_PATH}/${IMAGE}" -set comment 'Extraneous bytes removed' "${UNPROCESSED_PATH}/${IMAGE}" 2>/dev/null
+    
+    # Update the exif timestamp to today's date, since the scanner isn't accurate
+    jhead -ts"${EXIFDATE}" "${IMAGE_PATH}/${IMAGE}"
+    
+    # Convert to PDF
+    /usr/bin/convert "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
+elif [[ "${IMAGE}" == "*.pdf" ]] ; then
+    # Already a PDF so just copy it to the working path
+    cp "${IMAGE_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
+fi
  
 # OCR it
 /usr/bin/pdfsandwich "${WORK_PATH}/${PDF}" -o "${WORK_PATH}/${OCR_PDF}" -rgb -gs /ghostscript-wrapper.sh
  
-
 if [ ! -z "${ENABLE_GDRIVE}" ]; then
     # Push the resulting OCR'd document up to Google Drive
     mkdir -p "${GDRIVE_ROOT}/${GDRIVE_DIR}"
