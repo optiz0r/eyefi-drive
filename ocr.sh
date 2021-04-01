@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -xe
 
 SHELLNOCASEMATCH=$(shopt -p nocasematch; true)
 
@@ -45,7 +45,7 @@ elif [[ "${IMAGE}" == *.pdf ]] ; then
 fi
  
 # OCR it
-/usr/bin/pdfsandwich "${WORK_PATH}/${PDF}" -o "${WORK_PATH}/${OCR_PDF}" -rgb -gs /ghostscript-wrapper.sh
+/usr/bin/pdfsandwich "${WORK_PATH}/${PDF}" -o "${WORK_PATH}/${OCR_PDF}" -nthreads 1 -rgb -gs /ghostscript-wrapper.sh
  
 if [ ! -z "${ENABLE_GDRIVE}" ]; then
     # Push the resulting OCR'd document up to Google Drive
@@ -62,4 +62,3 @@ mv "${WORK_PATH}/${OCR_PDF}" "${PDF_PATH}/${PDF}"
  
 # And tidy up
 rm "${UNPROCESSED_PATH}/${IMAGE}" "${WORK_PATH}/${PDF}"
-
